@@ -1,6 +1,7 @@
 "use client";
 
-import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { useState } from "react";
+import { AlertCircle, CheckCircle2, Loader2, Mail, MapPin, Phone, Send } from "lucide-react";
 import Reveal from "./Reveal";
 
 /* Endpoint atualizado para o Web3Forms */
@@ -10,6 +11,42 @@ const inputClasses =
   "w-full rounded-lg bg-input border border-input-border px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 outline-none transition-colors focus:border-primary";
 
 export default function Contato() {
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("loading");
+    setFeedbackMessage("");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(FORM_ACTION, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setStatus("success");
+        setFeedbackMessage("Mensagem enviada com sucesso! Entrarei em contato em breve.");
+        form.reset();
+      } else {
+        setStatus("error");
+        setFeedbackMessage(data.message || "Ocorreu um erro ao enviar. Tente novamente.");
+      }
+    } catch {
+      setStatus("error");
+      setFeedbackMessage("Erro de conexão ao enviar a mensagem. Tente novamente mais tarde.");
+    }
+  }
+
   return (
     <section
       id="contato"
@@ -76,8 +113,7 @@ export default function Contato() {
         {/* COLUNA DO LADO DIREITO DO FORMULÁRIO */}
         <Reveal delay={0.15}>
           <form
-            action={FORM_ACTION}
-            method="POST"
+            onSubmit={handleSubmit}
             className="rounded-xl border border-line bg-surface p-7 sm:p-9"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -150,21 +186,49 @@ export default function Contato() {
               </div>
             </div>
 
-            {/* FormSubmit config */}
+            {/* Web3Forms Access Key & Anti-Spam */}
             <input
               type="hidden"
-              name="_subject"
-              value="Nova mensagem do portfólio"
+              name="access_key"
+              value="04d90fe2-f657-4e99-ab9c-f5711ab09e71"
             />
-            <input type="text" name="_honey" className="hidden" />
-            <input type="hidden" name="_captcha" value="false" />
+            <input
+              type="checkbox"
+              name="botcheck"
+              className="hidden"
+              style={{ display: "none" }}
+            />
+
+            {status === "success" && (
+              <div className="mt-5 flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
+                <CheckCircle2 size={18} className="shrink-0" />
+                <span>{feedbackMessage}</span>
+              </div>
+            )}
+
+            {status === "error" && (
+              <div className="mt-5 flex items-center gap-3 rounded-lg border border-rose-500/20 bg-rose-500/10 p-3.5 text-sm text-rose-400">
+                <AlertCircle size={18} className="shrink-0" />
+                <span>{feedbackMessage}</span>
+              </div>
+            )}
 
             <button
               type="submit"
-              className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-hover sm:w-auto"
+              disabled={status === "loading"}
+              className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-hover disabled:opacity-60 disabled:cursor-not-allowed sm:w-auto"
             >
-              Enviar mensagem
-              <Send size={16} />
+              {status === "loading" ? (
+                <>
+                  Enviando...
+                  <Loader2 size={16} className="animate-spin" />
+                </>
+              ) : (
+                <>
+                  Enviar mensagem
+                  <Send size={16} />
+                </>
+              )}
             </button>
           </form>
         </Reveal>
