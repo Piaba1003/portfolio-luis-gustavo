@@ -4,7 +4,7 @@ import { Mail, MapPin, Phone, Send } from "lucide-react";
 import Reveal from "./Reveal";
 
 /* Replace with the real FormSubmit endpoint, e.g. https://formsubmit.co/YOUR_EMAIL - EMAIL QUE VAI SER ENVIADO AS MENSAGENS */
-const FORM_ACTION = "https://formsubmit.co/luisgustavoaraujoribeiro@gmail.com";
+const FORM_ACTION = "https://formsubmit.co/luisgustavoaraujo2003@gmail.com";
 
 const inputClasses =
   "w-full rounded-lg bg-input border border-input-border px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 outline-none transition-colors focus:border-primary";
@@ -38,7 +38,7 @@ export default function Contato() {
                   E-mail
                 </p>
                 <p className="text-text-primary font-medium">
-                  luisgustavoaraujoribeiro@email.com
+                  luisgustavoaraujo2003@gmail.com
                 </p>
               </div>
             </div>
